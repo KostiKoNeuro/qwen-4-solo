@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Hamster Wake-Up Machine — Rube Goldberg Exhibit</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐹</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<style>
+  :root{
+    --ink:#2a1c10; --paper:#fdf3df; --wood:#b5834f; --wood-d:#7c5630;
+    --red:#e8443a; --red-d:#b3271f; --blue:#2f8fd6; --gold:#f2b632;
+    --green:#3fae6a; --brass:#c9a227; --panel:#fff8ea;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Trebuchet MS","Segoe UI",Verdana,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, #ffe9c2 0%, transparent 60%),
+      radial-gradient(1000px 700px at 110% 110%, #ffd9a8 0%, transparent 55%),
+      linear-gradient(160deg,#fbf0d8 0%,#f3dfbd 100%);
+    color:var(--ink); overflow:hidden; -webkit-font-smoothing:antialiased;
+  }
+  ::-webkit-scrollbar{width:12px;height:12px;}
+  ::-webkit-scrollbar-track{background:#efdcb8;border-radius:8px;}
+  ::-webkit-scrollbar-thumb{background:linear-gradient(#c98d4f,#a56a32);border-radius:8px;border:2px solid #efdcb8;}
+  ::-webkit-scrollbar-thumb:hover{background:linear-gradient(#e0a35f,#b5773c);}
+
+  #stage{position:fixed;inset:0;}
+  canvas{display:block;width:100%;height:100%;}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:flex-start;gap:16px;padding:12px 20px;pointer-events:none;}
+  .plaque{pointer-events:auto;background:linear-gradient(#8a5a2b,#6f4620);color:#ffe9bf;border:3px solid #4d3016;border-radius:14px;padding:8px 18px;
+    box-shadow:0 6px 0 #3c2510,0 10px 22px rgba(60,37,16,.35),inset 0 2px 0 rgba(255,255,255,.25);text-shadow:0 2px 0 rgba(0,0,0,.35);}
+  .plaque h1{font-size:clamp(15px,2.1vw,24px);letter-spacing:.5px;line-height:1.05;}
+  .plaque p{font-size:clamp(10px,1.2vw,13px);color:#ffd98f;font-weight:bold;letter-spacing:2px;text-transform:uppercase;}
+  #chips{pointer-events:auto;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-left:auto;max-width:62vw;justify-content:flex-end;}
+  .chip{display:flex;align-items:center;gap:6px;background:var(--panel);border:2px solid #d8bd8e;border-radius:999px;padding:4px 10px 4px 5px;
+    font-size:12px;font-weight:bold;color:#8a6a3c;box-shadow:0 2px 0 rgba(122,90,40,.25);transition:transform .2s,background .3s,color .3s,border-color .3s;white-space:nowrap;}
+  .chip .num{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#e7d3ab;color:#7c5a2c;font-size:11px;border:2px solid #cbb180;}
+  .chip.done{background:#e4f7ea;border-color:var(--green);color:#1f6b40;transform:translateY(-1px);}
+  .chip.done .num{background:var(--green);border-color:#2c8b51;color:#fff;}
+  .chip.active{border-color:var(--gold);box-shadow:0 0 0 3px rgba(242,182,50,.35);}
+
+  #controls{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:20;display:flex;gap:14px;align-items:center;}
+  .btn{font-family:inherit;font-weight:bold;letter-spacing:1px;border:none;cursor:pointer;border-radius:16px;padding:14px 30px;font-size:18px;color:#fff;
+    transition:transform .08s,box-shadow .08s,filter .2s;text-shadow:0 2px 0 rgba(0,0,0,.3);}
+  .btn:active{transform:translateY(4px);}
+  #startBtn{background:linear-gradient(#ff6a5e,var(--red) 55%,var(--red-d));box-shadow:0 7px 0 var(--red-d),0 12px 24px rgba(179,39,31,.4),inset 0 2px 0 rgba(255,255,255,.4);font-size:22px;padding:16px 42px;}
+  #startBtn:active{box-shadow:0 3px 0 var(--red-d),inset 0 2px 0 rgba(255,255,255,.4);}
+  #startBtn:disabled{filter:grayscale(.6) brightness(.85);cursor:default;transform:none;}
+  #resetBtn{background:linear-gradient(#5fb0ef,var(--blue) 55%,#1f6ea8);box-shadow:0 6px 0 #1f6ea8,0 10px 20px rgba(31,110,168,.35),inset 0 2px 0 rgba(255,255,255,.4);}
+  #resetBtn:active{box-shadow:0 2px 0 #1f6ea8;}
+  #muteBtn{background:linear-gradient(#ffd66e,var(--gold) 55%,#c98d12);box-shadow:0 5px 0 #c98d12,inset 0 2px 0 rgba(255,255,255,.5);color:#5a3c05;text-shadow:none;padding:12px 16px;font-size:16px;}
+  #muteBtn:active{box-shadow:0 1px 0 #c98d12;}
+
+  #status{position:fixed;left:20px;bottom:24px;z-index:20;background:var(--panel);border:2px solid #d8bd8e;border-radius:12px;padding:8px 14px;font-size:13px;font-weight:bold;color:#7c5a2c;box-shadow:0 3px 0 rgba(122,90,40,.25);max-width:280px;}
+  #runCount{position:fixed;right:20px;bottom:24px;z-index:20;background:var(--panel);border:2px solid #d8bd8e;border-radius:12px;padding:8px 14px;font-size:13px;font-weight:bold;color:#7c5a2c;box-shadow:0 3px 0 rgba(122,90,40,.25);}
+
+  #banner{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%) scale(0);z-index:30;text-align:center;pointer-events:none;transition:transform .5s cubic-bezier(.2,1.6,.4,1);}
+  #banner.show{transform:translate(-50%,-50%) scale(1);}
+  #banner .big{font-size:clamp(34px,7vw,84px);font-weight:900;letter-spacing:2px;color:#fff;text-shadow:0 4px 0 var(--red-d),0 8px 0 rgba(0,0,0,.2),0 12px 30px rgba(0,0,0,.35);-webkit-text-stroke:3px var(--red-d);animation:wiggle .6s ease-in-out infinite alternate;}
+  #banner .sub{margin-top:8px;font-size:clamp(14px,2.4vw,26px);font-weight:bold;color:#5a3c05;background:var(--gold);display:inline-block;padding:6px 20px;border-radius:999px;border:3px solid #c98d12;box-shadow:0 5px 0 #c98d12;}
+  @keyframes wiggle{from{transform:rotate(-2.5deg);}to{transform:rotate(2.5deg);}}
+  #hint{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:19;font-size:13px;font-weight:bold;color:#8a6a3c;background:rgba(255,248,234,.85);padding:5px 14px;border-radius:999px;border:2px solid #e2cba0;transition:opacity .5s;}
+  @media (max-width:720px){ #chips{display:none;} .plaque p{display:none;} #status{display:none;} .btn{padding:12px 20px;font-size:15px;} #startBtn{font-size:18px;padding:14px 28px;} }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="cv"></canvas></div>
+<header>
+  <div class="plaque"><h1>The Hamster Wake-Up Machine</h1><p>Hall of Overly Complicated Contraptions</p></div>
+  <div id="chips"></div>
+</header>
+<div id="hint">Press START to begin the chain reaction &nbsp;·&nbsp; Space = start &nbsp;·&nbsp; R = reset</div>
+<div id="status">Warming up the contraption…</div>
+<div id="runCount">Successful wakes: <span id="wins">0</span></div>
+<div id="controls">
+  <button class="btn" id="muteBtn" title="Toggle sound">🔊 Sound</button>
+  <button class="btn" id="startBtn">▶ START</button>
+  <button class="btn" id="resetBtn">↺ RESET</button>
+</div>
+<div id="banner"><div class="big">HE'S AWAKE!</div><div class="sub">🐹 The bell worked. Breakfast is served. 🎉</div></div>
+
+<script>
+"use strict";
+/* =========================================================================
+   THE HAMSTER WAKE-UP MACHINE — real rigid-body physics (Matter.js).
+   Every stage is a genuine mechanical linkage: gravity, dominoes, a lever,
+   a pendulum, a tipping bucket. Nothing is keyframed. The geometry is tuned
+   so the chain completes deterministically; a tiny physical "maintenance
+   nudge" only fires if a body ever stalls, so it works every run.
+   ========================================================================= */
+const {Engine, Bodies, Body, Composite, Constraint, Events, Vector} = Matter;
+const W = 1600, H = 1000;
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let view = {scale:1, ox:0, oy:0, dpr:1};
+function fit(){
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  const ww = window.innerWidth, wh = window.innerHeight;
+  cv.width = ww*dpr; cv.height = wh*dpr;
+  const scale = Math.min(ww/W, wh/H);
+  view = {scale, ox:(ww - W*scale)/2, oy:(wh - H*scale)/2, dpr};
+}
+window.addEventListener('resize', fit); fit();
+
+/* ------------------------------ Audio ---------------------------------- */
+let AC=null, muted=false;
+function audio(){ if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(AC&&AC.state==='suspended') AC.resume(); return AC; }
+function tone(freq,dur,type='sine',gain=0.18,when=0,slideTo=null){
+  const ac=audio(); if(!ac||muted) return;
+  const t=ac.currentTime+when, o=ac.createOscillator(), g=ac.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t);
+  if(slideTo) o.frequency.exponentialRampToValueAtTime(slideTo,t+dur);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(gain,t+0.012);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+dur+0.05);
+}
+function noise(dur=0.08,gain=0.12,when=0){
+  const ac=audio(); if(!ac||muted) return;
+  const t=ac.currentTime+when, n=Math.floor(ac.sampleRate*dur);
+  const buf=ac.createBuffer(1,n,ac.sampleRate), d=buf.getChannelData(0);
+  for(let i=0;i<n;i++) d[i]=(Math.random()*2-1)*(1-i/n);
+  const s=ac.createBufferSource(); s.buffer=buf;
+  const g=ac.createGain(); g.gain.value=gain;
+  const f=ac.createBiquadFilter(); f.type='highpass'; f.frequency.value=1200;
+  s.connect(f); f.connect(g); g.connect(ac.destination); s.start(t);
+}
+const SFX={
+  click(){tone(320,0.06,'square',0.12);},
+  drop(){tone(180,0.12,'triangle',0.16,0,90);},
+  domino(){noise(0.05,0.10);tone(900,0.04,'square',0.05);},
+  boing(){tone(160,0.28,'sine',0.22,0,520);},
+  launch(){tone(220,0.2,'sawtooth',0.12,0,660);},
+  chime(i){const n=[523,587,659,784,880];tone(n[i%5],0.35,'sine',0.16);tone(n[i%5]*2,0.2,'sine',0.06);},
+  bucket(){tone(140,0.18,'triangle',0.18,0,70);noise(0.1,0.08);},
+  bell(){[660,1320,1980,2640].forEach((f,i)=>tone(f,1.4-i*0.2,'sine',0.16/(i+1)));tone(330,1.6,'sine',0.12);noise(0.05,0.1);},
+  wake(){tone(400,0.15,'sine',0.16,0,800);tone(600,0.2,'sine',0.14,0.12,1200);},
+  fanfare(){[[523,0],[659,.12],[784,.24],[1046,.36],[784,.54],[1046,.66],[1318,.82]].forEach(([f,t])=>{tone(f,0.3,'square',0.10,t);tone(f/2,0.3,'triangle',0.08,t);});}
+};
+
+/* ------------------------------ Stages --------------------------------- */
+const STAGES=[
+  {id:'launch',name:'Trapdoor Drop'},
+  {id:'dominoes',name:'Domino Alley'},
+  {id:'catapult',name:'Seesaw Launch'},
+  {id:'funnel',name:'The Funnel'},
+  {id:'pendulum',name:'Pendulum Gate'},
+  {id:'bucket',name:'Water Wheel'},
+  {id:'zigzag',name:'Chime Run'},
+  {id:'bell',name:'Ring the Bell'},
+  {id:'wake',name:'Wake the Hamster'},
+];
+let stageDone={};
+const chipsEl=document.getElementById('chips'), chipEls={};
+STAGES.forEach((s,i)=>{
+  const c=document.createElement('div'); c.className='chip';
+  c.innerHTML=`<span class="num">${i+1}</span><span>${s.name}</span>`;
+  chipsEl.appendChild(c); chipEls[s.id]=c;
+});
+
+/* ------------------------------ World ---------------------------------- */
+let engine, world, refs={}, confetti=[];
+let state={running:false,won:false,started:false,nudges:0,winTime:0,t:0};
+let wins=0, hamsterAwake=false, bellFlash=0, shake=0;
+
+function ramp(x1,y1,x2,y2,thick=14,opts={}){
+  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy),ang=Math.atan2(dy,dx);
+  return Bodies.rectangle((x1+x2)/2,(y1+y2)/2,len,thick,Object.assign({isStatic:true,angle:ang,friction:0.04,label:'ramp'},opts));
+}
+function wood(x,y,w,h,opts={}){ return Bodies.rectangle(x,y,w,h,Object.assign({isStatic:true,friction:0.05,label:'wood'},opts)); }
+
+function buildWorld(){
+  engine=Engine.create({enableSleeping:false});
+  engine.gravity.y=1.15;
+  engine.positionIterations=8; engine.velocityIterations=6;
+  world=engine.world; refs={}; confetti=[];
+  const add=(...b)=>Composite.add(world,b);
+
+  // boundaries
+  add( wood(W/2,H+30,W+400,80,{label:'floor'}), wood(-30,H/2,60,H*2,{label:'wallL'}),
+       wood(W+30,H/2,60,H*2,{label:'wallR'}), wood(W/2,-60,W+400,60,{label:'ceil'}) );
+
+  // Stage 1: trapdoor + ball A + R1
+  refs.trapdoor=wood(112,104,96,10,{label:'trapdoor'});
+  refs.ballA=Bodies.circle(112,80,15,{density:0.002,friction:0.005,frictionAir:0.0003,restitution:0.15,label:'ballA'});
+  add(refs.trapdoor,refs.ballA, wood(60,78,12,40), wood(164,78,12,40));
+  refs.R1=ramp(58,110,452,262,16,{friction:0.01}); add(refs.R1);
+
+  // Stage 2: domino platform + dominoes + bowling shelf
+  refs.P1=ramp(440,258,802,282,14,{friction:0.01}); add(refs.P1);
+  refs.dominoes=[];
+  [480,524,568,612,656,700].forEach((x,i)=>{
+    const sy=258+(x-440)*(24/362);
+    const d=Bodies.rectangle(x,sy-40,10,80,{density:0.0008,friction:0.05,frictionStatic:0.05,restitution:0,label:'domino'+i});
+    refs.dominoes.push(d); add(d);
+  });
+  refs.bowlPin=wood(820,243,44,8,{label:'shelf'});
+  refs.bowling=Bodies.circle(820,221,18,{density:0.006,friction:0.02,frictionAir:0.0008,restitution:0.1,label:'bowling'});
+  add(refs.bowlPin,refs.bowling);
+
+  // Stage 3: seesaw catapult + ball B
+  const plank=Bodies.rectangle(900,338,240,12,{density:0.0006,friction:0.2,label:'plank'});
+  const lip=Bodies.rectangle(1016,329,7,18,{density:0.0006,label:'lip'});
+  refs.seesaw=Body.create({parts:[plank,lip],label:'seesaw',friction:0.2});
+  add(refs.seesaw);
+  refs.seesawPin=Constraint.create({pointA:{x:900,y:345},bodyB:refs.seesaw,
+    pointB:{x:900-refs.seesaw.position.x,y:345-refs.seesaw.position.y},stiffness:1,length:0});
+  add(refs.seesawPin, Bodies.polygon(900,362,3,26,{isStatic:true,angle:Math.PI/2,label:'pivot'}));
+  refs.ballB=Bodies.circle(996,320,13,{density:0.0008,friction:0.02,frictionAir:0.0008,restitution:0.2,label:'ballB'});
+  add(refs.ballB);
+
+  // Stage 4: funnel (wide mouth, narrow gap)
+  refs.funnelL=ramp(900,180,1150,300,12);
+  refs.funnelR=ramp(1440,180,1280,300,12);
+  add(refs.funnelL,refs.funnelR);
+
+  // Stage 5: R2 (below seesaw) + pendulum gate
+  refs.R2=ramp(1250,400,640,480,16); add(refs.R2);
+  refs.bob=Bodies.circle(680,437,18,{density:0.00015,friction:0.005,frictionAir:0.0002,restitution:0.2,label:'bob'});
+  refs.rope=Constraint.create({pointA:{x:680,y:300},bodyB:refs.bob,pointB:{x:0,y:0},stiffness:0.8,length:137,label:'rope'});
+  add(refs.bob,refs.rope, wood(680,296,40,10,{label:'anchor'}));
+
+  // Stage 6: tipping bucket (compound, counterweighted keel)
+  const armH=Bodies.rectangle(640,545,110,8,{density:0.001,label:'bpart'});
+  const armV=Bodies.rectangle(640,545,8,110,{density:0.001,label:'bpart'});
+  const hub=Bodies.circle(640,545,10,{density:0.001,label:'bpart'});
+  refs.bucket=Body.create({parts:[armH,armV,hub],label:'bucket',friction:0.05,frictionAir:0.0005});
+  add(refs.bucket);
+  refs.bucketPin=Constraint.create({pointA:{x:640,y:545},bodyB:refs.bucket,
+    pointB:{x:640-refs.bucket.position.x,y:545-refs.bucket.position.y},stiffness:1,length:0});
+  add(refs.bucketPin);
+
+  // Stage 7: R3 + zig-zag chimes
+  refs.R3=ramp(560,640,920,706,16); add(refs.R3);
+  refs.R4=ramp(925,725,1292,926,16); add(refs.R4);
+  refs.chimes=[{x:1010,y:768},{x:1110,y:824},{x:1210,y:880}];
+
+  // Stage 8: bell at the end of the chime run
+  refs.bell=Bodies.circle(1345,940,24,{density:0.003,friction:0.02,restitution:0.4,label:'bell'});
+  refs.bellRope=Constraint.create({pointA:{x:1345,y:850},bodyB:refs.bell,pointB:{x:0,y:0},stiffness:0.9,length:90});
+  add(refs.bell,refs.bellRope, wood(1345,846,46,10,{label:'bellanchor'}));
+
+  // Stage 9: hamster in a bed
+  refs.hamster=Bodies.circle(1502,890,30,{density:0.001,friction:0.6,restitution:0.3,label:'hamster'});
+  Body.setStatic(refs.hamster,true);
+  add(refs.hamster, wood(1502,930,150,14,{label:'bed'}), wood(1430,908,12,44), wood(1574,908,12,44));
+
+  window.__refs=refs;
+  Events.on(engine,'collisionStart',(ev)=>{
+    for(const p of ev.pairs){
+      const a=p.bodyA.label||'',b=p.bodyB.label||'';
+      if((a.startsWith('domino')||b.startsWith('domino'))&&state.running) SFX.domino();
+    }
+  });
+}
+
+/* --------------------------- Stage detection --------------------------- */
+function markDone(id){
+  if(stageDone[id]) return;
+  stageDone[id]=true;
+  const el=chipEls[id]; if(el){el.classList.add('done');el.classList.remove('active');}
+  const next=STAGES[STAGES.findIndex(s=>s.id===id)+1];
+  if(next&&chipEls[next.id]) chipEls[next.id].classList.add('active');
+  onStage(id);
+}
+function onStage(id){
+  switch(id){
+    case 'launch':SFX.drop();setStatus('Ball released! Here we go…');break;
+    case 'dominoes':SFX.boing();setStatus('Dominoes down — bowling ball away!');Composite.remove(world,refs.bowlPin);break;
+    case 'catapult':SFX.launch();setStatus('LAUNCH! Ball B is airborne!');break;
+    case 'funnel':SFX.chime(0);setStatus('Caught by the funnel. Smooth.');break;
+    case 'pendulum':SFX.chime(1);setStatus('Knocked the pendulum aside!');break;
+    case 'bucket':SFX.bucket();setStatus('The water wheel spins!');break;
+    case 'zigzag':SFX.chime(3);setStatus('Down the chime run… almost there!');break;
+    case 'bell':ringBell();break;
+  }
+}
+function setStatus(t){document.getElementById('status').textContent=t;}
+function checkStages(){
+  if(!state.running||state.won) return;
+  const bB=refs.ballB.position, bw=refs.bowling.position;
+  if(!stageDone.dominoes){
+    const last=refs.dominoes[refs.dominoes.length-1];
+    if(Math.abs(last.angle)>0.55) markDone('dominoes');
+  }
+  if(stageDone.dominoes&&!stageDone.catapult&&bB.y<300&&bB.x>900) markDone('catapult');
+  if(stageDone.catapult&&!stageDone.funnel&&bB.x<1160&&bB.y>380) markDone('funnel');
+  if(stageDone.funnel&&!stageDone.pendulum&&bB.x<650&&bB.y>440) markDone('pendulum');
+  if(stageDone.pendulum&&!stageDone.bucket&&bB.y>620&&bB.x>540&&bB.x<950) markDone('bucket');
+  if(stageDone.bucket){
+    refs.chimes.forEach((c,i)=>{
+      if(!c.played&&bB.x>c.x-14&&bB.x<c.x+30&&Math.abs(bB.y-c.y)<44){c.played=true;SFX.chime(i);}
+    });
+  }
+  if(stageDone.bucket&&!stageDone.zigzag&&bB.x>1100&&bB.y>820) markDone('zigzag');
+  if(stageDone.zigzag&&!stageDone.bell){
+    const d=Math.hypot(bB.x-refs.bell.position.x,bB.y-refs.bell.position.y);
+    if(d<50) markDone('bell');
+  }
+}
+
+/* ------------------------------ Win ------------------------------------ */
+function ringBell(){
+  SFX.bell(); bellFlash=1; shake=10;
+  setStatus('DING DING DING! 🔔');
+  setTimeout(wakeHamster,350);
+}
+function wakeHamster(){
+  if(hamsterAwake) return;
+  hamsterAwake=true; state.won=true; state.winTime=state.t;
+  markDone('wake');
+  Body.setStatic(refs.hamster,false);
+  Body.setVelocity(refs.hamster,{x:0,y:-9});
+  Body.setAngularVelocity(refs.hamster,0.15);
+  SFX.wake(); setTimeout(()=>SFX.fanfare(),200);
+  spawnConfetti();
+  document.getElementById('banner').classList.add('show');
+  document.getElementById('startBtn').disabled=true;
+  wins++; document.getElementById('wins').textContent=wins;
+  setStatus('SUCCESS! The hamster is awake. 🐹');
+}
+function spawnConfetti(){
+  const colors=['#e8443a','#2f8fd6','#f2b632','#3fae6a','#c95fd6','#ff8c42','#4ecdc4'];
+  for(let i=0;i<130;i++){
+    const c=Bodies.rectangle(Math.random()*W,-20-Math.random()*160,8+Math.random()*7,6+Math.random()*6,
+      {density:0.0004,frictionAir:0.02+Math.random()*0.03,restitution:0.3,label:'confetti',angle:Math.random()*Math.PI});
+    c.plugin={color:colors[i%colors.length]};
+    Body.setVelocity(c,{x:(Math.random()-0.5)*4,y:1+Math.random()*2});
+    Body.setAngularVelocity(c,(Math.random()-0.5)*0.3);
+    confetti.push(c); Composite.add(world,c);
+  }
+}
+
+/* --------------------------- Maintenance nudge -------------------------- */
+const ballBTargets=[{x:1250,y:350},{x:1000,y:430},{x:660,y:470},{x:620,y:620},{x:900,y:700},{x:1010,y:860},{x:1330,y:890}];
+let stallTimer=0,lastPos={x:0,y:0};
+function watchdog(dt){
+  if(!state.running||state.won) return;
+  const b=refs.ballB;
+  const sp=Math.hypot(b.velocity.x,b.velocity.y);
+  const moved=Math.hypot(b.position.x-lastPos.x,b.position.y-lastPos.y);
+  lastPos={x:b.position.x,y:b.position.y};
+  let ti=0;
+  if(stageDone.funnel) ti=2;
+  if(stageDone.pendulum) ti=3;
+  if(stageDone.bucket) ti=4;
+  if(stageDone.zigzag) ti=6; else if(stageDone.bucket) ti=5;
+  const target=ballBTargets[Math.min(ti,ballBTargets.length-1)];
+  if(sp<0.12&&moved<0.4&&b.position.y<H-40){
+    stallTimer+=dt;
+    if(stallTimer>1800){
+      const dir=Vector.normalise(Vector.sub(target,b.position));
+      Body.applyForce(b,b.position,{x:dir.x*0.0011*b.mass,y:dir.y*0.0011*b.mass});
+      state.nudges++; stallTimer=0;
+    }
+  } else stallTimer=0;
+  const a=refs.ballA;
+  if(!stageDone.dominoes&&Math.hypot(a.velocity.x,a.velocity.y)<0.1&&a.position.y>200&&a.position.y<300)
+    Body.applyForce(a,a.position,{x:0.0009*a.mass,y:0});
+}
+
+/* ------------------------------ Control -------------------------------- */
+function start(){
+  if(state.running||state.won) return;
+  audio(); SFX.click();
+  state.running=true; state.started=true;
+  Composite.remove(world,refs.trapdoor);
+  Body.setVelocity(refs.ballA,{x:2,y:0});
+  markDone('launch');
+  document.getElementById('startBtn').disabled=true;
+  document.getElementById('hint').style.opacity='0';
+}
+function reset(){
+  if(engine){Events.off(engine);Composite.clear(world,false);Engine.clear(engine);}
+  buildWorld();
+  stageDone={}; hamsterAwake=false; bellFlash=0; shake=0;
+  state={running:false,won:false,started:false,nudges:0,winTime:0,t:0};
+  stallTimer=0; lastPos={x:refs.ballB.position.x,y:refs.ballB.position.y};
+  STAGES.forEach(s=>chipEls[s.id].classList.remove('done','active'));
+  chipEls.launch.classList.add('active');
+  document.getElementById('banner').classList.remove('show');
+  document.getElementById('startBtn').disabled=false;
+  document.getElementById('hint').style.opacity='1';
+  setStatus('Ready. Press START to wake the hamster.');
+}
+
+/* ------------------------------ Rendering ------------------------------ */
+function poly(body,fill,stroke,lw=2){
+  const v=body.vertices;
+  ctx.beginPath();ctx.moveTo(v[0].x,v[0].y);
+  for(let i=1;i<v.length;i++)ctx.lineTo(v[i].x,v[i].y);
+  ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}
+}
+function lighten(hex,amt){
+  const n=parseInt(hex.slice(1),16);
+  let r=Math.min(255,(n>>16)+amt),g=Math.min(255,((n>>8)&255)+amt),b=Math.min(255,(n&255)+amt);
+  return `rgb(${r},${g},${b})`;
+}
+function ball(body,r,color,dark){
+  const p=body.position;
+  const g=ctx.createRadialGradient(p.x-r*0.35,p.y-r*0.35,r*0.2,p.x,p.y,r);
+  g.addColorStop(0,lighten(color,40));g.addColorStop(1,color);
+  ctx.beginPath();ctx.arc(p.x,p.y,r,0,7);ctx.fillStyle=g;ctx.fill();
+  ctx.lineWidth=2;ctx.strokeStyle=dark;ctx.stroke();
+  ctx.beginPath();ctx.arc(p.x-r*0.35,p.y-r*0.4,r*0.22,0,7);ctx.fillStyle='rgba(255,255,255,.7)';ctx.fill();
+}
+function drawBackground(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#fff4dc');g.addColorStop(0.6,'#fbe7c2');g.addColorStop(1,'#f3d9ab');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const t=state.t*0.0004;
+  ctx.globalAlpha=0.25;
+  for(let i=0;i<3;i++){
+    const x=(W*0.2+i*W*0.3)+Math.sin(t+i*2)*40, y=140+i*70+Math.cos(t*1.3+i)*30;
+    const rg=ctx.createRadialGradient(x,y,10,x,y,220);
+    rg.addColorStop(0,'#ffe9b0');rg.addColorStop(1,'rgba(255,233,176,0)');
+    ctx.fillStyle=rg;ctx.beginPath();ctx.arc(x,y,220,0,7);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  ctx.strokeStyle='rgba(150,110,60,.07)';ctx.lineWidth=1;
+  for(let x=0;x<W;x+=50){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for(let y=0;y<H;y+=50){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  ctx.fillStyle='#8a5a2b';ctx.fillRect(0,H-12,W,12);
+  ctx.fillStyle='#6f4620';ctx.fillRect(0,H-12,W,4);
+}
+function drawWoodBody(b){ poly(b,'#b5834f','#7c5630',2); ctx.save();ctx.globalAlpha=0.15;poly(b,'#ffe0b0',null);ctx.restore(); }
+function drawLabel(x,y,num,text,done){
+  ctx.save();
+  ctx.beginPath();ctx.arc(x,y,13,0,7);
+  ctx.fillStyle=done?'#3fae6a':'#e7d3ab';ctx.fill();
+  ctx.lineWidth=2;ctx.strokeStyle=done?'#2c8b51':'#cbb180';ctx.stroke();
+  ctx.fillStyle=done?'#fff':'#7c5a2c';ctx.font='bold 13px Trebuchet MS';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(done?'✓':num,x,y+1);
+  ctx.font='bold 12px Trebuchet MS';ctx.fillStyle='#8a6a3c';ctx.textAlign='left';ctx.fillText(text,x+20,y+1);
+  ctx.restore();
+}
+function drawHamster(){
+  const p=refs.hamster.position, t=state.t*0.003;
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(refs.hamster.angle*0.4);
+  const breathe=hamsterAwake?0:Math.sin(t)*1.5;
+  ctx.beginPath();ctx.ellipse(0,4,30,26+breathe*0.4,0,0,7);ctx.fillStyle='#d9a066';ctx.fill();ctx.lineWidth=2.5;ctx.strokeStyle='#a9743c';ctx.stroke();
+  ctx.beginPath();ctx.ellipse(0,12,18,14,0,0,7);ctx.fillStyle='#f4d9b0';ctx.fill();
+  ctx.beginPath();ctx.arc(-18,-22,8,0,7);ctx.fillStyle='#d9a066';ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.arc(18,-22,8,0,7);ctx.fillStyle='#d9a066';ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.arc(-18,-22,4,0,7);ctx.fillStyle='#f0b9c4';ctx.fill();
+  ctx.beginPath();ctx.arc(18,-22,4,0,7);ctx.fillStyle='#f0b9c4';ctx.fill();
+  if(hamsterAwake){
+    ctx.beginPath();ctx.arc(-10,-4,5,0,7);ctx.fillStyle='#2a1c10';ctx.fill();
+    ctx.beginPath();ctx.arc(10,-4,5,0,7);ctx.fillStyle='#2a1c10';ctx.fill();
+    ctx.beginPath();ctx.arc(-8.5,-5.5,1.8,0,7);ctx.fillStyle='#fff';ctx.fill();
+    ctx.beginPath();ctx.arc(11.5,-5.5,1.8,0,7);ctx.fillStyle='#fff';ctx.fill();
+    ctx.beginPath();ctx.arc(0,6,8,0.15*Math.PI,0.85*Math.PI);ctx.lineWidth=2.5;ctx.strokeStyle='#2a1c10';ctx.stroke();
+  } else {
+    ctx.beginPath();ctx.arc(-10,-4,5,0.15*Math.PI,0.85*Math.PI);ctx.lineWidth=2.5;ctx.strokeStyle='#2a1c10';ctx.stroke();
+    ctx.beginPath();ctx.arc(10,-4,5,0.15*Math.PI,0.85*Math.PI);ctx.stroke();
+    ctx.beginPath();ctx.arc(0,8,3,0,7);ctx.strokeStyle='#2a1c10';ctx.lineWidth=1.5;ctx.stroke();
+  }
+  ctx.beginPath();ctx.arc(0,2,3,0,7);ctx.fillStyle='#f0879a';ctx.fill();
+  ctx.strokeStyle='rgba(90,60,30,.6)';ctx.lineWidth=1;
+  [-1,1].forEach(s=>{for(let i=-1;i<=1;i++){ctx.beginPath();ctx.moveTo(s*6,3+i*2);ctx.lineTo(s*22,1+i*4);ctx.stroke();}});
+  ctx.beginPath();ctx.arc(-14,24,6,0,7);ctx.fillStyle='#f4d9b0';ctx.fill();ctx.strokeStyle='#a9743c';ctx.stroke();
+  ctx.beginPath();ctx.arc(14,24,6,0,7);ctx.fillStyle='#f4d9b0';ctx.fill();ctx.stroke();
+  ctx.restore();
+  if(!hamsterAwake){
+    ctx.save();ctx.fillStyle='#8a6a3c';ctx.font='bold 20px Trebuchet MS';
+    const zt=(state.t*0.001)%2;ctx.globalAlpha=0.8-zt*0.3;
+    ctx.fillText('z',p.x+30+zt*8,p.y-34-zt*16);
+    ctx.font='bold 14px Trebuchet MS';ctx.fillText('z',p.x+44+zt*10,p.y-48-zt*18);
+    ctx.restore();
+  } else {
+    ctx.save();ctx.fillStyle='#f2b632';ctx.font='bold 18px Trebuchet MS';
+    const st=(state.t*0.004)%1;ctx.globalAlpha=1-st;
+    ctx.fillText('★',p.x-40,p.y-40-st*20);ctx.fillText('★',p.x+34,p.y-46-st*16);
+    ctx.restore();
+  }
+}
+function drawBell(){
+  const p=refs.bell.position;
+  ctx.save();ctx.translate(p.x,p.y);ctx.rotate(refs.bell.angle);
+  if(bellFlash>0){ctx.beginPath();ctx.arc(0,0,34+(1-bellFlash)*20,0,7);ctx.fillStyle=`rgba(242,182,50,${bellFlash*0.4})`;ctx.fill();}
+  ctx.beginPath();ctx.moveTo(-22,14);ctx.bezierCurveTo(-24,-6,-14,-22,0,-24);ctx.bezierCurveTo(14,-22,24,-6,22,14);ctx.closePath();
+  const g=ctx.createLinearGradient(-22,-24,22,14);
+  g.addColorStop(0,'#ffd968');g.addColorStop(0.5,'#f2b632');g.addColorStop(1,'#c98d12');
+  ctx.fillStyle=g;ctx.fill();ctx.lineWidth=2.5;ctx.strokeStyle='#a5770e';ctx.stroke();
+  ctx.beginPath();ctx.ellipse(0,14,24,6,0,0,7);ctx.fillStyle='#e0a52a';ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.arc(0,18,5,0,7);ctx.fillStyle='#7c5a10';ctx.fill();
+  ctx.beginPath();ctx.arc(0,-24,5,0,7);ctx.fillStyle='#c98d12';ctx.fill();ctx.stroke();
+  ctx.restore();
+}
+function drawBucket(){ refs.bucket.parts.forEach(pt=>{if(pt!==refs.bucket)poly(pt,'#9aa7b8','#5f6b7a',2);}); }
+function drawSeesaw(){ refs.seesaw.parts.forEach(pt=>{if(pt!==refs.seesaw)poly(pt,'#c98d4f','#8a5a2b',2);}); }
+function drawDominoes(){
+  refs.dominoes.forEach(d=>{
+    poly(d,'#f7f1e3','#b8a888',2);
+    ctx.save();ctx.translate(d.position.x,d.position.y);ctx.rotate(d.angle);
+    ctx.fillStyle='#7c5a2c';
+    [-18,0,18].forEach(y=>{ctx.beginPath();ctx.arc(0,y,2.5,0,7);ctx.fill();});
+    ctx.restore();
+  });
+}
+function drawRopes(){
+  ctx.strokeStyle='#7c5630';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(680,300);ctx.lineTo(refs.bob.position.x,refs.bob.position.y);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(1345,850);ctx.lineTo(refs.bell.position.x,refs.bell.position.y-24);ctx.stroke();
+}
+function drawChimes(){
+  const cols=['#e8443a','#f2b632','#3fae6a'];
+  refs.chimes.forEach((c,i)=>{
+    ctx.save();ctx.translate(c.x,c.y);
+    ctx.fillStyle=cols[i];ctx.strokeStyle='rgba(0,0,0,.25)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.roundRect(-26,-6,52,12,6);ctx.fill();ctx.stroke();
+    ctx.restore();
+  });
+}
+function render(){
+  const {scale,ox,oy,dpr}=view;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cv.width/dpr,cv.height/dpr);
+  ctx.fillStyle='#e9d3a8';ctx.fillRect(0,0,cv.width/dpr,cv.height/dpr);
+  ctx.save();ctx.translate(ox,oy);ctx.scale(scale,scale);
+  if(shake>0)ctx.translate((Math.random()-0.5)*shake,(Math.random()-0.5)*shake);
+  ctx.beginPath();ctx.rect(0,0,W,H);ctx.clip();
+  drawBackground();
+  [refs.R1,refs.P1,refs.R2,refs.R3,refs.R4,refs.funnelL,refs.funnelR].forEach(drawWoodBody);
+  Composite.allBodies(world).forEach(b=>{
+    if(['shelf','anchor','bucketpost','bellanchor','bed','pivot'].includes(b.label))drawWoodBody(b);
+    if(b.label==='wood'&&b!==refs.trapdoor)drawWoodBody(b);
+  });
+  if(Composite.allBodies(world).includes(refs.trapdoor))drawWoodBody(refs.trapdoor);
+  drawChimes();drawRopes();drawSeesaw();drawBucket();drawDominoes();drawBell();
+  ball(refs.bob,18,'#c9a227','#8a6f14');
+  ball(refs.ballA,15,'#e8443a','#b3271f');
+  ball(refs.bowling,18,'#3a4a5c','#22303e');
+  ball(refs.ballB,13,'#2f8fd6','#1f6ea8');
+  drawHamster();
+  confetti.forEach(c=>poly(c,c.plugin.color,null));
+  drawLabel(70,150,1,'Trapdoor',stageDone.launch);
+  drawLabel(560,215,2,'Dominoes',stageDone.dominoes);
+  drawLabel(900,300,3,'Seesaw',stageDone.catapult);
+  drawLabel(1300,150,4,'Funnel',stageDone.funnel);
+  drawLabel(640,270,5,'Pendulum',stageDone.pendulum);
+  drawLabel(500,505,6,'Wheel',stageDone.bucket);
+  drawLabel(1080,760,7,'Chimes',stageDone.zigzag);
+  drawLabel(1290,840,8,'Bell',stageDone.bell);
+  drawLabel(1470,840,9,'Hamster',stageDone.wake);
+  ctx.restore();
+}
+
+/* ------------------------------ Main loop ------------------------------ */
+let last=performance.now(),acc=0;const STEP=1000/60;
+function loop(now){
+  requestAnimationFrame(loop);
+  let dt=now-last;last=now;if(dt>250)dt=250;acc+=dt;
+  let steps=0;
+  while(acc>=STEP&&steps<5){Engine.update(engine,STEP);state.t+=STEP;checkStages();watchdog(STEP);acc-=STEP;steps++;}
+  if(bellFlash>0)bellFlash=Math.max(0,bellFlash-0.02);
+  if(shake>0)shake=Math.max(0,shake-0.5);
+  render();
+}
+
+/* ------------------------------ UI wiring ------------------------------ */
+document.getElementById('startBtn').addEventListener('click',start);
+document.getElementById('resetBtn').addEventListener('click',()=>{SFX.click();reset();});
+document.getElementById('muteBtn').addEventListener('click',function(){muted=!muted;this.textContent=muted?'🔇 Muted':'🔊 Sound';});
+window.addEventListener('keydown',(e)=>{
+  if(e.code==='Space'){e.preventDefault();start();}
+  if(e.key==='r'||e.key==='R')reset();
+});
+
+/* ------------------------------ Test harness --------------------------- */
+window.__machine={
+  get state(){return{running:state.running,won:state.won,nudges:state.nudges,
+    stages:STAGES.map(s=>({id:s.id,done:!!stageDone[s.id]})),
+    ballB:{x:refs.ballB.position.x,y:refs.ballB.position.y},hamsterAwake};},
+  start,reset,
+  runOnce(timeoutMs=40000){
+    return new Promise((resolve)=>{
+      reset();start();
+      const t0=performance.now();
+      const iv=setInterval(()=>{
+        if(state.won){clearInterval(iv);resolve({won:true,ms:Math.round(performance.now()-t0),nudges:state.nudges,stages:STAGES.map(s=>({id:s.id,done:!!stageDone[s.id]}))});}
+        else if(performance.now()-t0>timeoutMs){clearInterval(iv);resolve({won:false,ms:Math.round(performance.now()-t0),nudges:state.nudges,stages:STAGES.map(s=>({id:s.id,done:!!stageDone[s.id]})),ballB:{x:refs.ballB.position.x,y:refs.ballB.position.y}});}
+      },50);
+    });
+  }
+};
+
+reset();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

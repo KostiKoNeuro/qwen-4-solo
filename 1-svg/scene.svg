@@ -1,0 +1,398 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="100%" height="100%" role="img" aria-labelledby="t d">
+  <title id="t">Capybara in a teacup onsen</title>
+  <desc id="d">A blissed-out capybara soaks in a steaming teacup, reading a newspaper with both paws, a yuzu balanced on its head and one hind foot draped over the rim. Seamless 8 second loop.</desc>
+
+  <defs>
+    <radialGradient id="teaGrad" cx="0.5" cy="0.42" r="0.8">
+      <stop offset="0" stop-color="#F6C377"/>
+      <stop offset="0.55" stop-color="#E8A34C"/>
+      <stop offset="1" stop-color="#C97F35"/>
+    </radialGradient>
+    <linearGradient id="cupGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EFE3CE"/>
+    </linearGradient>
+    <linearGradient id="paperGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FCF8EC"/>
+      <stop offset="1" stop-color="#EDE3CD"/>
+    </linearGradient>
+    <radialGradient id="yuzuGrad" cx="0.38" cy="0.35" r="0.85">
+      <stop offset="0" stop-color="#FFE07A"/>
+      <stop offset="0.6" stop-color="#F5B93E"/>
+      <stop offset="1" stop-color="#E89A24"/>
+    </radialGradient>
+
+    <filter id="sticker" filterUnits="userSpaceOnUse" x="100" y="100" width="640" height="680">
+      <feMorphology in="SourceAlpha" operator="dilate" radius="9" result="fat"/>
+      <feFlood flood-color="#FFFFFF" result="white"/>
+      <feComposite in="white" in2="fat" operator="in" result="border"/>
+      <feMerge>
+        <feMergeNode in="border"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="steamBlur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="2.2"/>
+    </filter>
+    <filter id="softBlur" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6"/>
+    </filter>
+
+    <path id="cupBody" d="M 188 430 C 192 545 235 618 305 642 C 340 654 460 654 505 642 C 575 618 608 545 612 430 A 212 54 0 0 1 188 430 Z"/>
+    <clipPath id="cupClip"><use href="#cupBody"/></clipPath>
+    <clipPath id="teaClip"><ellipse cx="400" cy="432" rx="184" ry="41"/></clipPath>
+    <path id="spark" d="M 0 -11 L 2.8 -2.8 L 11 0 L 2.8 2.8 L 0 11 L -2.8 2.8 L -11 0 L -2.8 -2.8 Z"/>
+  </defs>
+
+  <!-- ground shadow -->
+  <ellipse cx="400" cy="714" rx="242" ry="26" fill="#6B4A2F" opacity="0.16"/>
+
+  <!-- steam (behind the cup) -->
+  <g fill="none" stroke="#AFC3D8" stroke-linecap="round" filter="url(#steamBlur)">
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.2;0.7;1" dur="4s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 16;8 -16;-6 -48" keyTimes="0;0.5;1" dur="4s" repeatCount="indefinite"/>
+      <path d="M 250 400 C 236 372 268 352 254 322 C 242 298 268 282 258 256" stroke-width="12"/>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.2;0.7;1" dur="4s" begin="-1.35s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 16;-8 -16;6 -48" keyTimes="0;0.5;1" dur="4s" begin="-1.35s" repeatCount="indefinite"/>
+      <path d="M 560 396 C 576 368 546 348 562 318 C 576 294 552 278 562 252" stroke-width="12"/>
+    </g>
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;0.7;0.7;0" keyTimes="0;0.2;0.7;1" dur="4s" begin="-2.7s" repeatCount="indefinite"/>
+      <animateTransform attributeName="transform" type="translate" values="0 12;6 -18;-4 -44" keyTimes="0;0.5;1" dur="4s" begin="-2.7s" repeatCount="indefinite"/>
+      <path d="M 610 392 C 622 370 600 352 612 330 C 622 312 606 300 614 284" stroke-width="9"/>
+    </g>
+  </g>
+
+  <!-- sticker body -->
+  <g filter="url(#sticker)" stroke-linejoin="round" stroke-linecap="round">
+
+    <!-- saucer -->
+    <ellipse cx="400" cy="688" rx="252" ry="46" fill="#FDF8EF" stroke="#4A2E1B" stroke-width="6"/>
+    <ellipse cx="400" cy="684" rx="190" ry="32" fill="#F1E6D2" stroke="#D9C9AE" stroke-width="3"/>
+    <ellipse cx="400" cy="686" rx="215" ry="38" fill="none" stroke="#2E5FD8" stroke-width="4" opacity="0.85"/>
+
+    <!-- spoon -->
+    <g transform="rotate(-12 590 696)">
+      <rect x="562" y="691" width="90" height="9" rx="4.5" fill="#E8DCC8" stroke="#4A2E1B" stroke-width="4"/>
+      <ellipse cx="550" cy="695" rx="21" ry="13" fill="#F1E6D2" stroke="#4A2E1B" stroke-width="4"/>
+      <ellipse cx="548" cy="693" rx="11" ry="6" fill="#D9C9AE"/>
+    </g>
+
+    <!-- handle -->
+    <path d="M 598 478 C 686 462 704 522 682 556 C 662 586 622 590 584 574" fill="none" stroke="#4A2E1B" stroke-width="38"/>
+    <path d="M 598 478 C 686 462 704 522 682 556 C 662 586 622 590 584 574" fill="none" stroke="#FDF8EF" stroke-width="26"/>
+    <path d="M 598 478 C 686 462 704 522 682 556 C 662 586 622 590 584 574" fill="none" stroke="#2E5FD8" stroke-width="6"/>
+
+    <!-- cup foot + body -->
+    <ellipse cx="400" cy="652" rx="105" ry="17" fill="#E8DCC8" stroke="#4A2E1B" stroke-width="6"/>
+    <use href="#cupBody" fill="url(#cupGrad)" stroke="#4A2E1B" stroke-width="6"/>
+
+    <!-- porcelain pattern -->
+    <g clip-path="url(#cupClip)" fill="none" stroke="#2E5FD8">
+      <path d="M 224 552 C 300 582 500 582 576 552" stroke-width="14"/>
+      <path d="M 240 588 C 310 612 490 612 560 588" stroke-width="5"/>
+      <g fill="#2E5FD8" stroke="none">
+        <circle cx="300" cy="540" r="4.5"/>
+        <circle cx="350" cy="548" r="4.5"/>
+        <circle cx="400" cy="551" r="4.5"/>
+        <circle cx="450" cy="548" r="4.5"/>
+        <circle cx="500" cy="540" r="4.5"/>
+      </g>
+    </g>
+
+    <!-- glint sweep -->
+    <g clip-path="url(#cupClip)">
+      <g opacity="0">
+        <animate attributeName="opacity" values="0;0;0.3;0.3;0;0" keyTimes="0;0.78;0.81;0.92;0.95;1" dur="8s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="translate" values="-330 0;-330 0;360 0;360 0" keyTimes="0;0.78;0.95;1" dur="8s" repeatCount="indefinite"/>
+        <rect x="368" y="400" width="64" height="320" fill="#FFFFFF" transform="rotate(20 400 560)"/>
+      </g>
+    </g>
+
+    <!-- rim + tea -->
+    <ellipse cx="400" cy="430" rx="212" ry="54" fill="#FDF8EF" stroke="#4A2E1B" stroke-width="6"/>
+    <ellipse cx="400" cy="430" rx="197" ry="48" fill="none" stroke="#2E5FD8" stroke-width="3.5" opacity="0.9"/>
+    <ellipse cx="400" cy="432" rx="184" ry="41" fill="url(#teaGrad)"/>
+    <g clip-path="url(#teaClip)">
+      <path d="M 220 424 A 184 41 0 0 1 580 424" fill="none" stroke="#A86F2C" stroke-width="7" opacity="0.45"/>
+      <ellipse cx="400" cy="446" rx="148" ry="28" fill="#8A5A33" opacity="0.32" filter="url(#softBlur)"/>
+      <ellipse cx="400" cy="438" rx="70" ry="13" fill="none" stroke="#FFE9C4" stroke-width="3" opacity="0">
+        <animate attributeName="rx" values="70;176" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="ry" values="13;37" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.5;0" keyTimes="0;0.15;1" dur="2s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="400" cy="438" rx="70" ry="13" fill="none" stroke="#FFE9C4" stroke-width="3" opacity="0">
+        <animate attributeName="rx" values="70;176" dur="2s" begin="-1s" repeatCount="indefinite"/>
+        <animate attributeName="ry" values="13;37" dur="2s" begin="-1s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.5;0" keyTimes="0;0.15;1" dur="2s" begin="-1s" repeatCount="indefinite"/>
+      </ellipse>
+    </g>
+
+    <!-- bubbles -->
+    <g fill="#FFF6E0" stroke="#D9A45C" stroke-width="2">
+      <circle cx="322" cy="440" r="2.5" opacity="0">
+        <animate attributeName="cy" values="440;414" dur="1.6s" begin="-0.2s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="2.5;6.5" dur="1.6s" begin="-0.2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.15;0.8;1" dur="1.6s" begin="-0.2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="476" cy="438" r="2.5" opacity="0">
+        <animate attributeName="cy" values="438;410" dur="1.6s" begin="-0.7s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="2.5;6" dur="1.6s" begin="-0.7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.15;0.8;1" dur="1.6s" begin="-0.7s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="540" cy="444" r="2" opacity="0">
+        <animate attributeName="cy" values="444;420" dur="1.6s" begin="-1.15s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="2;5" dur="1.6s" begin="-1.15s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0;0.95;0.95;0" keyTimes="0;0.15;0.8;1" dur="1.6s" begin="-1.15s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- floating yuzu slice -->
+    <g transform="translate(240 424)">
+      <g>
+        <animateTransform attributeName="transform" type="translate" values="0 0;0 -4;0 0" dur="4s" begin="-1s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="rotate" additive="sum" values="0;6;0;-6;0" keyTimes="0;0.25;0.5;0.75;1" dur="4s" begin="-1s" repeatCount="indefinite"/>
+        <circle r="14" fill="#F5B93E" stroke="#4A2E1B" stroke-width="4"/>
+        <circle r="9.5" fill="#FFE07A"/>
+        <path d="M 0 -9.5 L 0 9.5 M -9.5 0 L 9.5 0 M -6.7 -6.7 L 6.7 6.7 M -6.7 6.7 L 6.7 -6.7" stroke="#F0A92E" stroke-width="2"/>
+      </g>
+    </g>
+
+    <!-- tea tag -->
+    <g transform="translate(232 420)">
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="4;-4;4" dur="2s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>
+        <g transform="translate(-232 -420)">
+          <path d="M 232 420 C 220 434 210 454 207 484" fill="none" stroke="#8A6B4F" stroke-width="3.5"/>
+          <rect x="189" y="484" width="36" height="46" rx="7" fill="#2E5FD8" stroke="#4A2E1B" stroke-width="4"/>
+          <circle cx="207" cy="492" r="3" fill="#FDF8EF"/>
+          <path d="M 207 506 C 213 499 221 499 224 505 C 220 512 211 512 207 506 Z" fill="#FDF8EF"/>
+          <path d="M 209 506 L 220 504" stroke="#2E5FD8" stroke-width="2"/>
+        </g>
+      </g>
+    </g>
+
+    <!-- capybara + newspaper (breathing bob) -->
+    <g id="bob">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 5;0 0" dur="4s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>
+
+      <!-- shoulders -->
+      <path d="M 300 436 C 298 386 336 352 400 352 C 464 352 502 386 500 436 C 500 448 470 432 440 440 C 415 446 385 434 360 440 C 335 446 305 448 300 436 Z" fill="#B08050" stroke="#4A2E1B" stroke-width="6"/>
+      <path d="M 300 438 C 330 430 360 446 400 438 C 440 430 470 446 500 438" fill="none" stroke="#FFD98F" stroke-width="4" opacity="0.85"/>
+
+      <!-- arms -->
+      <path d="M 304 402 C 258 416 246 458 272 506" fill="none" stroke="#4A2E1B" stroke-width="32"/>
+      <path d="M 496 402 C 542 416 554 458 528 506" fill="none" stroke="#4A2E1B" stroke-width="32"/>
+      <path d="M 304 402 C 258 416 246 458 272 506" fill="none" stroke="#B08050" stroke-width="22"/>
+      <path d="M 496 402 C 542 416 554 458 528 506" fill="none" stroke="#B08050" stroke-width="22"/>
+
+      <!-- head -->
+      <g transform="translate(400 382)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="0;-1.5;0;1.5;0" keyTimes="0;0.25;0.5;0.75;1" dur="8s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>
+          <g transform="translate(-400 -382)">
+
+            <!-- ears -->
+            <g transform="translate(318 206)">
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0;0;-16;5;0;0" keyTimes="0;0.3;0.33;0.36;0.4;1" dur="8s" repeatCount="indefinite"/>
+                <g transform="translate(-318 -206)">
+                  <path d="M 306 212 C 300 198 308 188 320 190 C 330 192 334 202 330 212 Z" fill="#B08050" stroke="#4A2E1B" stroke-width="5"/>
+                  <path d="M 312 206 C 310 199 314 194 320 195 C 325 196 326 202 323 206 Z" fill="#8A5A33"/>
+                </g>
+              </g>
+            </g>
+            <g transform="translate(482 206)">
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0;0;12;-4;0;0" keyTimes="0;0.7;0.73;0.76;0.8;1" dur="8s" repeatCount="indefinite"/>
+                <g transform="translate(-482 -206)">
+                  <path d="M 494 212 C 500 198 492 188 480 190 C 470 192 466 202 470 212 Z" fill="#B08050" stroke="#4A2E1B" stroke-width="5"/>
+                  <path d="M 488 206 C 490 199 486 194 480 195 C 475 196 474 202 477 206 Z" fill="#8A5A33"/>
+                </g>
+              </g>
+            </g>
+
+            <!-- head shape -->
+            <path d="M 300 244 C 300 212 334 196 400 196 C 466 196 500 212 500 244 L 502 310 C 502 358 466 388 400 388 C 334 388 298 358 298 310 Z" fill="#B08050" stroke="#4A2E1B" stroke-width="6"/>
+            <rect x="314" y="264" width="172" height="112" rx="36" fill="#C9A06B"/>
+
+            <!-- eyes -->
+            <g transform="translate(336 246)">
+              <g>
+                <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.08;1 1;1 1" keyTimes="0;0.42;0.46;0.5;1" dur="4s" repeatCount="indefinite"/>
+                <g transform="translate(-336 -246)">
+                  <ellipse cx="336" cy="246" rx="8" ry="11" fill="#3A2417"/>
+                  <circle cx="339" cy="250" r="2.2" fill="#FFFFFF" opacity="0.9"/>
+                </g>
+              </g>
+            </g>
+            <rect x="326" y="232" width="20" height="13" rx="2" fill="#B08050"/>
+            <path d="M 326 245 Q 336 249 346 245" fill="none" stroke="#4A2E1B" stroke-width="3"/>
+            <g transform="translate(464 246)">
+              <g>
+                <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 0.08;1 1;1 1" keyTimes="0;0.42;0.46;0.5;1" dur="4s" repeatCount="indefinite"/>
+                <g transform="translate(-464 -246)">
+                  <ellipse cx="464" cy="246" rx="8" ry="11" fill="#3A2417"/>
+                  <circle cx="467" cy="250" r="2.2" fill="#FFFFFF" opacity="0.9"/>
+                </g>
+              </g>
+            </g>
+            <rect x="454" y="232" width="20" height="13" rx="2" fill="#B08050"/>
+            <path d="M 454 245 Q 464 249 474 245" fill="none" stroke="#4A2E1B" stroke-width="3"/>
+
+            <!-- face -->
+            <ellipse cx="370" cy="282" rx="8" ry="4" fill="#4A2E1B" transform="rotate(-8 370 282)"/>
+            <ellipse cx="430" cy="282" rx="8" ry="4" fill="#4A2E1B" transform="rotate(8 430 282)"/>
+            <path d="M 400 296 L 400 320" stroke="#4A2E1B" stroke-width="4"/>
+            <path d="M 380 324 Q 400 336 420 324" fill="none" stroke="#4A2E1B" stroke-width="4.5"/>
+            <ellipse cx="316" cy="306" rx="13" ry="7.5" fill="#E8908A" opacity="0.5"/>
+            <ellipse cx="484" cy="306" rx="13" ry="7.5" fill="#E8908A" opacity="0.5"/>
+
+            <!-- yuzu on head -->
+            <path d="M 372 208 Q 400 218 428 208" fill="none" stroke="#4A2E1B" stroke-width="7" opacity="0.22"/>
+            <g transform="translate(400 212)">
+              <g>
+                <animateTransform attributeName="transform" type="rotate" values="0;3.5;0;-3.5;0" keyTimes="0;0.25;0.5;0.75;1" dur="4s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>
+                <g transform="translate(-400 -212)">
+                  <circle cx="400" cy="184" r="28" fill="url(#yuzuGrad)" stroke="#4A2E1B" stroke-width="5"/>
+                  <circle cx="390" cy="178" r="1.8" fill="#C77B2E" opacity="0.5"/>
+                  <circle cx="408" cy="190" r="1.8" fill="#C77B2E" opacity="0.5"/>
+                  <circle cx="396" cy="196" r="1.8" fill="#C77B2E" opacity="0.5"/>
+                  <path d="M 384 170 A 22 22 0 0 1 402 160" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.55"/>
+                  <path d="M 400 156 L 402 148" stroke="#6B4A2F" stroke-width="4"/>
+                  <g transform="translate(402 152)">
+                    <g>
+                      <animateTransform attributeName="transform" type="rotate" values="0;8;0;-8;0" keyTimes="0;0.25;0.5;0.75;1" dur="2s" repeatCount="indefinite"/>
+                      <g transform="translate(-402 -152)">
+                        <path d="M 402 152 C 412 136 432 132 442 142 C 436 154 416 160 402 152 Z" fill="#5FA845" stroke="#4A2E1B" stroke-width="4"/>
+                        <path d="M 406 150 C 416 144 428 142 436 144" fill="none" stroke="#3E7A2C" stroke-width="2.5"/>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+
+      <!-- newspaper -->
+      <g transform="translate(400 516)">
+        <g>
+          <animateTransform attributeName="transform" type="rotate" values="0;1.4;0;-1.4;0" keyTimes="0;0.25;0.5;0.75;1" dur="4s" begin="-0.5s" calcMode="spline" keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1" repeatCount="indefinite"/>
+          <g transform="translate(-400 -516)">
+
+            <!-- static pages -->
+            <path d="M 282 400 L 398 390 L 398 516 L 276 526 Z" fill="url(#paperGrad)" stroke="#4A2E1B" stroke-width="5"/>
+            <path d="M 402 390 L 518 400 L 524 526 L 402 516 Z" fill="url(#paperGrad)" stroke="#4A2E1B" stroke-width="5"/>
+            <path d="M 398 390 L 398 516" stroke="#C9BCA4" stroke-width="3"/>
+
+            <!-- left page content -->
+            <g fill="#6B6257">
+              <rect x="294" y="410" width="86" height="9" rx="3"/>
+              <rect x="294" y="426" width="48" height="38" rx="3" fill="#D8CDB8" stroke="#6B6257" stroke-width="3"/>
+              <path d="M 300 445 C 305 439 315 439 320 445 C 315 451 305 451 300 445 Z" opacity="0.8"/>
+              <path d="M 320 445 L 327 440 L 327 450 Z" opacity="0.8"/>
+              <circle cx="305" cy="443" r="1.4" fill="#F4EEDF"/>
+              <g opacity="0.75">
+                <rect x="350" y="428" width="36" height="4.5" rx="2.25"/>
+                <rect x="350" y="437" width="36" height="4.5" rx="2.25"/>
+                <rect x="350" y="446" width="36" height="4.5" rx="2.25"/>
+                <rect x="350" y="455" width="28" height="4.5" rx="2.25"/>
+                <rect x="294" y="474" width="90" height="4.5" rx="2.25"/>
+                <rect x="294" y="483" width="90" height="4.5" rx="2.25"/>
+                <rect x="294" y="492" width="90" height="4.5" rx="2.25"/>
+                <rect x="294" y="501" width="62" height="4.5" rx="2.25"/>
+              </g>
+            </g>
+
+            <!-- right page content -->
+            <g id="rightContent" fill="#6B6257">
+              <rect x="410" y="408" width="94" height="10" rx="3"/>
+              <rect x="410" y="424" width="64" height="5" rx="2.5" opacity="0.7"/>
+              <g opacity="0.75">
+                <rect x="410" y="438" width="96" height="4.5" rx="2.25"/>
+                <rect x="410" y="447" width="96" height="4.5" rx="2.25"/>
+                <rect x="410" y="456" width="96" height="4.5" rx="2.25"/>
+                <rect x="410" y="465" width="80" height="4.5" rx="2.25"/>
+              </g>
+              <rect x="458" y="478" width="50" height="36" rx="3" fill="#D8CDB8" stroke="#6B6257" stroke-width="3"/>
+              <path d="M 464 496 C 469 490 479 490 484 496 C 479 502 469 502 464 496 Z" opacity="0.8"/>
+              <path d="M 484 496 L 491 491 L 491 501 Z" opacity="0.8"/>
+              <circle cx="469" cy="494" r="1.4" fill="#F4EEDF"/>
+              <g opacity="0.75">
+                <rect x="410" y="480" width="38" height="4.5" rx="2.25"/>
+                <rect x="410" y="489" width="38" height="4.5" rx="2.25"/>
+                <rect x="410" y="498" width="30" height="4.5" rx="2.25"/>
+              </g>
+              <circle cx="498" cy="414" r="13" fill="none" stroke="#C99B5C" stroke-width="4" opacity="0.5"/>
+            </g>
+
+            <!-- turning page -->
+            <g opacity="0">
+              <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.6;0.62;0.755;0.775;1" dur="8s" repeatCount="indefinite"/>
+              <g transform="translate(400 0)">
+                <g>
+                  <animateTransform attributeName="transform" type="scale" values="1 1;1 1;-1 1;-1 1;1 1;1 1" keyTimes="0;0.62;0.72;0.8;0.81;1" dur="8s" calcMode="spline" keySplines="0 0 1 1;0.3 0.7 0.3 1;0 0 1 1;0 0 1 1;0 0 1 1" repeatCount="indefinite"/>
+                  <g transform="translate(-400 0)">
+                    <path d="M 402 390 L 518 400 L 524 526 L 402 516 Z" fill="url(#paperGrad)" stroke="#4A2E1B" stroke-width="5"/>
+                    <use href="#rightContent"/>
+                  </g>
+                </g>
+              </g>
+            </g>
+
+            <!-- paws gripping the paper -->
+            <g transform="translate(16 18)">
+              <path d="M 252 494 C 250 482 260 476 272 478 C 286 480 292 490 290 502 C 288 514 276 520 264 516 C 256 513 252 504 252 494 Z" fill="#B08050" stroke="#4A2E1B" stroke-width="5"/>
+              <path d="M 262 480 L 260 492 M 272 478 L 271 492 M 282 482 L 280 494" stroke="#4A2E1B" stroke-width="3.5"/>
+            </g>
+            <g transform="translate(-16 18)">
+              <path d="M 548 494 C 550 482 540 476 528 478 C 514 480 508 490 510 502 C 512 514 524 520 536 516 C 544 513 548 504 548 494 Z" fill="#B08050" stroke="#4A2E1B" stroke-width="5"/>
+              <path d="M 538 480 L 540 492 M 528 478 L 529 492 M 518 482 L 520 494" stroke="#4A2E1B" stroke-width="3.5"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <!-- hind foot draped over the rim -->
+    <ellipse cx="592" cy="452" rx="26" ry="7" fill="#4A2E1B" opacity="0.18"/>
+    <path d="M 582 446 C 572 444 564 442 556 442" fill="none" stroke="#4A2E1B" stroke-width="22"/>
+    <path d="M 582 446 C 572 444 564 442 556 442" fill="none" stroke="#8A5A33" stroke-width="14"/>
+    <g transform="translate(592 446)">
+      <g>
+        <animateTransform attributeName="transform" type="rotate" values="0;2;0;-2;0;9;-7;9;0;0" keyTimes="0;0.1;0.2;0.3;0.4;0.52;0.56;0.6;0.66;1" dur="8s" repeatCount="indefinite"/>
+        <g transform="translate(-592 -446)">
+          <path d="M 574 452 C 566 438 570 422 584 414 C 588 411 593 412 595 416 C 598 411 604 411 607 416 C 610 412 616 414 618 420 C 623 430 620 444 610 452 C 600 460 582 460 574 452 Z" fill="#9A6A3E" stroke="#4A2E1B" stroke-width="5"/>
+          <path d="M 595 416 L 593 428 M 607 416 L 604 428" stroke="#4A2E1B" stroke-width="3.5"/>
+        </g>
+      </g>
+    </g>
+  </g>
+
+  <!-- sparkles -->
+  <g>
+    <g transform="translate(152 238)" fill="#2E5FD8">
+      <use href="#spark" opacity="0.25">
+        <animate attributeName="opacity" values="0.25;1;0.25" dur="2s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="scale" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+      </use>
+    </g>
+    <g transform="translate(664 210)" fill="#F5B93E">
+      <use href="#spark" opacity="0.25">
+        <animate attributeName="opacity" values="0.25;1;0.25" dur="2s" begin="-0.7s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="scale" values="0.5;1;0.5" dur="2s" begin="-0.7s" repeatCount="indefinite"/>
+      </use>
+    </g>
+    <g transform="translate(600 128)" fill="#2E5FD8">
+      <use href="#spark" opacity="0.25">
+        <animate attributeName="opacity" values="0.25;1;0.25" dur="2s" begin="-1.3s" repeatCount="indefinite"/>
+        <animateTransform attributeName="transform" type="scale" values="0.4;0.8;0.4" dur="2s" begin="-1.3s" repeatCount="indefinite"/>
+      </use>
+    </g>
+  </g>
+</svg>

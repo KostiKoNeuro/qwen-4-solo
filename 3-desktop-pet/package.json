@@ -1,0 +1,14 @@
+{
+  "name": "taskbar-magpie",
+  "productName": "Taskbar Magpie",
+  "version": "1.0.0",
+  "description": "Qwpie the magpie - a desktop pet that lives on your taskbar and collects shiny things you copy.",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "45.3.1"
+  }
+}
